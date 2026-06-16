@@ -1,5 +1,5 @@
 <img width="4236" height="2865" alt="architecture_devsecops_kubernetes_(ultimate)" src="https://github.com/user-attachments/assets/ae554b02-3c8b-494a-90d7-8622af7c68da" />
-Lien de la vidéo: https://drive.google.com/file/d/1Tey4UHIjSrsUCyUvZVL0aBhWo2xrrXdA/view?usp=sharing
+
 #  DE `kubectl apply` AU **GITOPS ABSOLU**
 
 > Mise en place d’une plateforme Kubernetes **moderne, sécurisée et automatisée**, basée sur les principes **GitOps**, **Zero-Downtime** et **Zero-Trust**.
