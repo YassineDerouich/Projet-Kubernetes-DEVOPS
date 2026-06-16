@@ -143,4 +143,4 @@ Ce projet a été un **défi technique intense** :
 * Sécurité Zero-Trust
 * Analyse automatique + rollback intelligent
 
-C’est clairement **l’un des projets les plus formateurs que nous ayons réalisés**.
+
