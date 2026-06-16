@@ -1,0 +1,12 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: addresspool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.1.202/32
+  - 192.168.1.203/32
+  - 192.168.1.204/32
+  - 192.168.1.205/32
+  - 192.168.1.206/32

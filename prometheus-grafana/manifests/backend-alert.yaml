@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: backend-cpu-alert
+  namespace: observ-prod
+  labels:
+    release: monitoring 
+spec:
+  groups:
+  - name: backend.rules
+    rules:
+    - alert: BackendCpuLimitWarning
+      expr: >
+        sum(rate(container_cpu_usage_seconds_total{namespace="backend", container="backend"}[1m])) 
+        / 
+        sum(kube_pod_container_resource_limits{namespace="backend", container="backend", resource="cpu"}) 
+        > 0.80
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Alerte : Le Backend frôle sa limite CPU"
+        description: "Le pod backend dans le namespace backend consomme plus de 80% de sa limite CPU maximale allouée depuis plus d'une minute."

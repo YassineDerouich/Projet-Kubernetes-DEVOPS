@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopLocal | DevSecOps Apparel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex flex-col min-h-screen relative">
+
+    <nav class="bg-gray-900 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🐳</span>
+                    <span class="font-bold text-xl tracking-wider">ShopLocal</span>
+                </div>
+                <div>
+                    <button onclick="openCheckout()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md font-medium transition flex items-center gap-2 transform active:scale-95">
+                        🛒 <span id="cart-count" class="bg-white text-blue-600 rounded-full px-2 py-0.5 text-xs font-bold">0</span>
+                        <span id="cart-total-nav" class="ml-1 hidden sm:inline">0.00 €</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bg-white border-b">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">DevSecOps Apparel</h1>
+            <p class="max-w-xl mt-4 mx-auto text-xl text-gray-500">Secure your style. Deployed with 💖 via ArgoCD.</p>
+            <div class="mt-6">
+                <span id="api-status" class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                    ⏳ Vérification de l'API...
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">Catalogue</h2>
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="col-span-full text-center text-gray-500 py-10">Chargement des articles...</div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center text-sm">
+        <p>&copy; 2026 ShopLocal. Zero Trust, Zero Downtime.</p>
+    </footer>
+
+    <div id="product-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col md:flex-row">
+            <div class="bg-gray-100 md:w-1/2 flex items-center justify-center p-12 text-8xl" id="modal-image">👕</div>
+            <div class="p-8 md:w-1/2 flex flex-col">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 id="modal-title" class="text-2xl font-bold text-gray-900">Nom du produit</h3>
+                    <button onclick="closeModal('product-modal')" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+                </div>
+                <p id="modal-desc" class="text-gray-600 mb-6 flex-grow">Description...</p>
+                <div class="text-3xl font-extrabold text-blue-600 mb-6" id="modal-price">0.00 €</div>
+                <button id="modal-add-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-500 transition-colors transform active:scale-95">
+                    Ajouter au panier
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-80 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative overflow-hidden">
+            <button onclick="closeModal('checkout-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+            
+            <div id="checkout-form-container">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Paiement Sécurisé</h2>
+                <p class="text-sm text-green-600 font-medium mb-6 flex items-center gap-1">
+                    🔒 Chiffré de bout en bout par Vault
+                </p>
+                
+                <div class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200 flex justify-between items-center">
+                    <span class="text-gray-600">Total à régler :</span>
+                    <span id="checkout-total" class="text-2xl font-extrabold text-gray-900">0.00 €</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Numéro de carte</label>
+                        <input type="text" placeholder="0000 0000 0000 0000" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" value="4562 1122 3344 5566">
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Expiration</label>
+                            <input type="text" placeholder="MM/YY" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" value="12/28">
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">CVC</label>
+                            <input type="text" placeholder="123" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500" value="789">
+                        </div>
+                    </div>
+                    <button id="pay-button" onclick="processPayment()" class="w-full mt-6 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-500 transition-colors transform active:scale-95 flex justify-center items-center gap-2">
+                        <span>Payer maintenant</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="checkout-success" class="hidden py-8 text-center flex flex-col items-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 text-3xl">✅</div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Paiement validé !</h3>
+                <p class="text-gray-600 mb-6">Votre commande a été traitée avec succès.<br>Préparation de l'expédition en cours.</p>
+                <button onclick="closeModal('checkout-modal')" class="bg-gray-900 text-white font-semibold py-2 px-6 rounded-lg hover:bg-gray-800 transition-colors">
+                    Retour à la boutique
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cartItems = 0;
+        let cartTotal = 0.0;
+        let globalProducts = [];
+
+        // 1. Gestion du panier
+        function addToCart(event, price) {
+            if(event) event.stopPropagation(); 
+            
+            cartItems++;
+            cartTotal += parseFloat(price);
+            
+            // Mise à jour de l'UI
+            document.getElementById('cart-count').innerText = cartItems;
+            document.getElementById('cart-total-nav').innerText = cartTotal.toFixed(2) + ' €';
+            
+            // Animation
+            const cartBtn = document.getElementById('cart-count');
+            cartBtn.classList.add('bg-blue-100');
+            setTimeout(() => cartBtn.classList.remove('bg-blue-100'), 200);
+        }
+
+        // 2. Gestion des Modales (Fiche Produit & Checkout)
+        function openModal(productId) {
+            const product = globalProducts.find(p => p.id === productId);
+            if(!product) return;
+
+            document.getElementById('modal-title').innerText = product.name;
+            document.getElementById('modal-price').innerText = product.price + ' €';
+            
+            const defaultDesc = "Un incontournable pour tout ingénieur DevOps qui se respecte. Qualité premium, certifié sans faille de sécurité.";
+            document.getElementById('modal-desc').innerText = product.description || defaultDesc;
+            
+            let icon = "👕";
+            if(product.name.toLowerCase().includes("mug")) icon = "☕";
+            if(product.name.toLowerCase().includes("sticker")) icon = "🚀";
+            document.getElementById('modal-image').innerText = icon;
+
+            // Mettre à jour l'action du bouton d'ajout au panier de la modale
+            const addBtn = document.getElementById('modal-add-btn');
+            addBtn.onclick = () => { addToCart(null, product.price); closeModal('product-modal'); };
+
+            document.getElementById('product-modal').classList.remove('hidden');
+        }
+
+        function openCheckout() {
+            if (cartItems === 0) {
+                alert("Votre panier est vide !");
+                return;
+            }
+            
+            // Réinitialiser la modale de paiement à son état initial
+            document.getElementById('checkout-form-container').classList.remove('hidden');
+            document.getElementById('checkout-success').classList.add('hidden');
+            document.getElementById('pay-button').innerHTML = '<span>Payer maintenant</span>';
+            document.getElementById('pay-button').disabled = false;
+            
+            document.getElementById('checkout-total').innerText = cartTotal.toFixed(2) + ' €';
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // 3. Faux traitement bancaire
+        function processPayment() {
+            const btn = document.getElementById('pay-button');
+            btn.disabled = true;
+            
+            // Animation de chargement
+            btn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Traitement en cours...</span>
+            `;
+
+            // Simulation d'un délai réseau de 1.5 secondes
+            setTimeout(() => {
+                document.getElementById('checkout-form-container').classList.add('hidden');
+                document.getElementById('checkout-success').classList.remove('hidden');
+                
+                // Vider le panier après succès
+                cartItems = 0;
+                cartTotal = 0.0;
+                document.getElementById('cart-count').innerText = "0";
+                document.getElementById('cart-total-nav').innerText = "0.00 €";
+            }, 1500);
+        }
+
+        // 4. Récupération des données du Backend
+        async function fetchProducts() {
+            const grid = document.getElementById('product-grid');
+            const statusBadge = document.getElementById('api-status');
+
+            try {
+                const response = await fetch('/api/products'); 
+                if (!response.ok) throw new Error('Erreur HTTP ' + response.status);
+                
+                globalProducts = await response.json();
+                
+                statusBadge.className = "inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800";
+                statusBadge.innerHTML = "🟢 API Connectée";
+                grid.innerHTML = '';
+
+                globalProducts.forEach(product => {
+                    grid.innerHTML += `
+                        <div onclick="openModal(${product.id})" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col cursor-pointer group">
+                            <div class="h-48 bg-gray-50 flex items-center justify-center border-b group-hover:bg-gray-100 transition-colors">
+                                <span class="text-6xl group-hover:scale-110 transition-transform">${product.name.toLowerCase().includes("mug") ? "☕" : product.name.toLowerCase().includes("sticker") ? "🚀" : "👕"}</span>
+                            </div>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">${product.name}</h3>
+                                <p class="text-2xl font-extrabold text-blue-600 mb-4 mt-auto">${product.price} €</p>
+                                <button onclick="addToCart(event, ${product.price})" class="w-full bg-gray-900 text-white font-semibold py-2 px-4 rounded hover:bg-gray-800 transition-colors transform active:scale-95">
+                                    Ajouter au panier
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            } catch (error) {
+                console.error("Erreur:", error);
+                statusBadge.className = "inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-red-100 text-red-800";
+                statusBadge.innerHTML = "🔴 API Déconnectée";
+                grid.innerHTML = `<div class="col-span-full bg-red-50 p-4 rounded-md text-red-700 text-center border border-red-200">Impossible de joindre le backend.</div>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchProducts);
+    </script>
+</body>
+</html>

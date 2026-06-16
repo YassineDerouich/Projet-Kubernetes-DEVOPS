@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: database
+spec:
+  serviceName: "postgres-svc"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      securityContext:
+        fsGroup: 70
+      serviceAccountName: database-sa
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        securityContext:
+          runAsUser: 70
+          runAsGroup: 70
+          runAsNonRoot: true
+        env:
+        - name: POSTGRES_DB
+          value: "shopdb"
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+        envFrom:
+        - secretRef:
+            name: database-secrets
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        - name: init-script
+          mountPath: /docker-entrypoint-initdb.d/01-init.sql
+          subPath: 01-init.sql
+      volumes:
+      - name: init-script
+        configMap:
+          name: postgres-init-script
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

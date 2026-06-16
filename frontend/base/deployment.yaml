@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: frontend
+  namespace: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  strategy:
+    canary:
+      steps:
+      - setWeight: 20
+      - analysis:
+          templates:
+          - templateName: cpu-health-check
+      - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      serviceAccountName: frontend-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+      containers:
+      - name: frontend
+        image: 192.168.1.61:5000/frontend:v2.11
+        imagePullPolicy: Always
+        securityContext:
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8080
+
+        volumeMounts:
+        - mountPath: /var/cache/nginx
+          name: nginx-cache
+        - mountPath: /var/run
+          name: nginx-run
+        - mountPath: /tmp
+          name: tmp-volume
+
+      volumes:
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir: {}
+      - name: tmp-volume
+        emptyDir: {}

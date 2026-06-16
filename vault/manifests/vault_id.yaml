@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-approlesecret
+  namespace: security
+data:
+
+  roleId: ==
+  secretId: ==

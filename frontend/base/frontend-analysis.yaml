@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: cpu-health-check
+spec:
+  metrics:
+  - name: check-cpu-usage
+    count: 2
+    interval: 30s
+    successCondition: result < 0.1  #inférieur à 100m
+    provider:
+      prometheus:
+        address: http://monitoring-kube-prometheus-prometheus.observ-prod.svc.cluster.local:9090
+        query: |
+          scalar(sum(rate(container_cpu_usage_seconds_total{namespace="frontend", pod=~"frontend-[0-9a-zA-Z]+-[0-9a-zA-Z]+"}[1m])))

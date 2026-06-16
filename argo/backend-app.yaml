@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backend-prod
+  namespace: argocd
+spec:
+  project: prod
+  source:
+    repoURL: 'git@github.com:YassineDerouich/projet_cloud_security.git'
+    targetRevision: main
+    path: cloud_native_devops/backend/overlays/prod
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: backend
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
